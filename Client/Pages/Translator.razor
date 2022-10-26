@@ -1,0 +1,35 @@
+﻿@page "/translate"
+@using BlazorApp.Shared
+@using System.Text.Json
+@inject HttpClient Http
+
+<h3>Translator</h3>
+
+
+<p><label for="w3review">Text to translate:</label></p>
+<textarea id="w3review" name="w3review" rows="4" cols="50" @bind=@translation.Text></textarea>
+<br>
+<button @onclick="@Submit"> Click </button>
+
+<textarea id="w3review" name="w3review" rows="4" cols="50">@translatedText</textarea>
+
+
+
+
+@code {
+
+    private Translation translation = new Translation { };
+    string translatedText = "";
+
+    public async Task Submit()
+    {
+        using var response = await Http.PostAsJsonAsync("/api/TranslateText", translation);
+
+        var data = await response.Content.ReadFromJsonAsync<JsonElement>();
+
+        // get id property from JSON response data
+        translatedText = data[0].GetProperty("translations")[0].GetProperty("text").GetString();
+        StateHasChanged();
+    }
+
+}
